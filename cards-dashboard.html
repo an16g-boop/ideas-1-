@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111114">
+  <title>Cards &amp; Accounts</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: #f5f2ee;
+      background: #111114;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      --muted: #aaa5a2;  
+      --line: rgba(255, 255, 255, .09);
+      --panel: rgba(27, 25, 26, .78);
+      --orange: #e88c48;
+      --green: #63d6a5;
+      --purple: #a874ed;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 86% 22%, rgba(114, 55, 37, .33), transparent 30%),
+        radial-gradient(ellipse at 65% 83%, rgba(93, 52, 33, .29), transparent 31%),
+        radial-gradient(ellipse at 42% 52%, rgba(76, 61, 52, .17), transparent 38%),
+        linear-gradient(115deg, #171619, #111114 58%, #241a18);
+      font-size: 12px;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .dashboard {
+      display: grid;
+      width: min(100%, 1600px);
+      min-height: 100vh;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 24px;
+      margin: 0 auto;
+      padding: 25px 28px 22px;
+    }
+    .main-column { min-width: 0; }
+    .topline {
+      display: flex;
+      min-height: 22px;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 13px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: -.3px;
+      white-space: nowrap;
+    }
+    .topline h1 span { margin-left: 5px; font-size: 11px; }
+    .account-summaries {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin: -4px 2px 0 auto;
+    }
+    .summary {
+      display: grid;
+      gap: 2px;
+      color: #d7d1cd;
+      font-size: 7px;
+      white-space: nowrap;
+    }
+    .summary strong { font-size: 9px; font-weight: 600; }
+    .summary small { color: #aaa4a0; font-size: 6px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .bank-card {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      height: 83px;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      padding: 11px 12px 9px;
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(55, 52, 52, .9), rgba(19, 19, 21, .94));
+      box-shadow: 0 9px 22px rgba(0, 0, 0, .22), inset 0 1px rgba(255, 255, 255, .08);
+    }
+    .bank-card::after {
+      position: absolute;
+      right: -25px;
+      bottom: -42px;
+      width: 110px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+      content: "";
+      filter: blur(18px);
+    }
+    .bank-card.platinum {
+      border-color: rgba(111, 209, 157, .3);
+      background: linear-gradient(125deg, rgba(25, 82, 64, .96), rgba(13, 43, 38, .98));
+    }
+    .bank-card.digital {
+      border-color: rgba(164, 111, 240, .28);
+      background: linear-gradient(125deg, rgba(75, 38, 118, .97), rgba(38, 20, 66, .99));
+    }
+    .card-label, .card-brand, .card-foot, .card-balance { position: relative; z-index: 1; }
+    .card-label { color: #dedbd9; font-size: 7px; }
+    .card-brand { position: absolute; top: 11px; right: 12px; font-size: 7px; font-weight: 700; letter-spacing: .6px; }
+    .card-dots { color: #c3bfbd; font-size: 8px; letter-spacing: 1px; }
+    .card-balance { font-size: 13px; font-weight: 650; letter-spacing: -.3px; }
+    .card-foot { display: flex; justify-content: space-between; color: #c4bfbd; font-size: 6px; }
+    .card-foot span:last-child { color: #d2cdca; }
+
+    .overview {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 13px;
+    }
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(145deg, rgba(41, 37, 36, .86), rgba(24, 23, 24, .91));
+      box-shadow: 0 12px 25px rgba(0, 0, 0, .13), inset 0 1px rgba(255, 255, 255, .035);
+      backdrop-filter: blur(14px);
+    }
+    .security-panel, .spending-panel { height: 158px; padding: 13px 14px 11px; }
+    .panel-heading {
+      display: flex;
+      min-height: 23px;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    h2 { margin: 0; font-size: 9px; font-weight: 650; letter-spacing: -.1px; }
+    .subtitle { display: block; margin-top: 3px; color: var(--muted); font-size: 6px; }
+    .active-chip, .period-chip {
+      flex: 0 0 auto;
+      padding: 3px 7px;
+      border: 1px solid rgba(105, 212, 160, .22);
+      border-radius: 12px;
+      background: rgba(89, 191, 142, .12);
+      color: #8be1b7;
+      font-size: 6px;
+      line-height: 1;
+    }
+    .spend-limit { margin-top: 12px; }
+    .limit-label { display: flex; justify-content: space-between; margin-bottom: 6px; color: #c5bfbb; font-size: 6px; }
+    .limit-label strong { color: #f1ece8; font-size: 7px; font-weight: 600; }
+    .range {
+      position: relative;
+      height: 4px;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #dc7d39 0 24%, rgba(255, 255, 255, .19) 24%);
+    }
+    .range::after {
+      position: absolute;
+      top: -3px;
+      left: 23%;
+      width: 10px;
+      height: 10px;
+      border: 1px solid rgba(255, 255, 255, .45);
+      border-radius: 50%;
+      background: #f1e8df;
+      content: "";
+    }
+    .setting-row {
+      display: flex;
+      min-height: 32px;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, .07);
+      color: #e4dfdc;
+      font-size: 7px;
+    }
+    .setting-row:first-of-type { margin-top: 11px; }
+    .setting-row small { display: block; margin-top: 3px; color: #938d89; font-size: 5px; }
+    .switch {
+      position: relative;
+      width: 19px;
+      height: 10px;
+      flex: 0 0 auto;
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      background: #514a47;
+      cursor: pointer;
+    }
+    .switch::after {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+      content: "";
+      transition: transform .18s ease;
+    }
+    .switch:checked { background: #55c994; }
+    .switch:checked::after { transform: translateX(9px); }
+    .switch:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    .category-list { display: grid; gap: 8px; margin-top: 8px; }
+    .category { display: grid; gap: 4px; }
+    .category-top { display: flex; justify-content: space-between; gap: 6px; color: #d3ceca; font-size: 6px; }
+    .category-top strong { color: #eee9e5; font-size: 6px; font-weight: 600; }
+    .bar-track { height: 4px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, .09); }
+    .bar { display: block; height: 100%; border-radius: inherit; background: var(--bar-color); }
+
+    .activity { margin-top: 13px; padding: 0; border: 0; background: transparent; box-shadow: none; }
+    .activity-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 1px 9px; }
+    .activity-heading h2 { font-size: 10px; }
+    .activity-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .transaction {
+      display: flex;
+      min-width: 0;
+      height: 56px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(32, 29, 29, .72);
+      box-shadow: inset 0 1px rgba(255, 255, 255, .04);
+    }
+    .merchant-icon {
+      display: grid;
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .11);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, .07);
+      color: #ded8d2;
+      font-size: 9px;
+    }
+    .merchant-copy { display: grid; min-width: 0; gap: 4px; }
+    .merchant-copy strong { overflow: hidden; color: #eee9e5; font-size: 6px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .merchant-copy small { overflow: hidden; color: #928c89; font-size: 5px; text-overflow: ellipsis; white-space: nowrap; }
+    .merchant-amount { margin-left: auto; color: #ed8d76; font-size: 6px; font-weight: 650; white-space: nowrap; }
+
+    .side-column { min-width: 0; padding-top: 1px; }
+    .side-top {
+      display: flex;
+      height: 34px;
+      align-items: flex-start;
+      justify-content: flex-end;
+      gap: 14px;
+      margin-bottom: 17px;
+    }
+    .icon-button {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      place-items: center;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .035);
+      color: #d6cfca;
+    }
+    .icon-button svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .notification { position: relative; }
+    .notification::after { position: absolute; top: 4px; right: 4px; width: 4px; height: 4px; border-radius: 50%; background: #ee876f; content: ""; }
+    .user-chip { display: flex; align-items: center; gap: 7px; margin-left: 1px; }
+    .avatar {
+      display: grid;
+      width: 27px;
+      height: 27px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .25);
+      border-radius: 50%;
+      background: linear-gradient(145deg, #9d7c68, #3e2926);
+      color: white;
+      font-size: 8px;
+      font-weight: 650;
+    }
+    .user-chip small { color: #e9e3df; font-size: 7px; white-space: nowrap; }
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .quick-action { display: grid; min-height: 49px; justify-items: center; align-content: center; gap: 5px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255, 255, 255, .045); color: #d8d1cc; font-size: 6px; }
+    .quick-action svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .balance-card {
+      position: relative;
+      display: flex;
+      min-height: 80px;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      margin-bottom: 15px;
+      padding: 11px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 11px;
+      background:
+        linear-gradient(0deg, rgba(16, 15, 17, .9), rgba(16, 15, 17, .08)),
+        radial-gradient(ellipse at 75% 18%, rgba(235, 119, 68, .9), transparent 34%),
+        radial-gradient(ellipse at 30% 65%, rgba(184, 137, 95, .75), transparent 48%),
+        linear-gradient(135deg, #49352e, #20191a);
+      box-shadow: 0 10px 23px rgba(0, 0, 0, .2);
+    }
+    .balance-card::before {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(130deg, transparent 0 22px, rgba(255, 255, 255, .035) 23px 24px);
+      content: "";
+    }
+    .balance-label, .balance-value { position: relative; z-index: 1; }
+    .balance-label { color: #e5ddd8; font-size: 6px; }
+    .balance-value { margin-top: 5px; font-size: 14px; font-weight: 650; letter-spacing: -.3px; }
+    .side-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; font-size: 8px; font-weight: 650; }
+    .side-heading a { color: #c9c1bc; font-size: 6px; text-decoration: none; }
+    .last-transaction { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(31, 28, 29, .72); }
+    .last-transaction .merchant-icon { width: 23px; height: 23px; border-radius: 50%; }
+    .last-transaction .merchant-copy strong { font-size: 6px; }
+    .last-transaction .merchant-copy small { font-size: 5px; }
+
+    @media (max-width: 700px) {
+      body { overflow-y: hidden; }
+      .dashboard {
+        width: max-content;
+        min-height: 100vh;
+        grid-template-columns: minmax(390px, calc(100vw - 100px)) 180px;
+        gap: 18px;
+        margin: 0;
+        padding: 1px 16px 16px;
+      }
+      .topline { min-height: 16px; gap: 9px; margin-bottom: 8px; }
+      .account-summaries { gap: 8px; }
+      .bank-card { height: 77px; padding: 9px 10px 8px; }
+      .card-label, .card-brand { font-size: 5.5px; }
+      .card-label { max-width: 68px; white-space: nowrap; }
+      .cards { gap: 8px; }
+      .overview { gap: 9px; margin-top: 11px; }
+      .security-panel, .spending-panel { height: 153px; padding: 11px 11px 9px; }
+      .activity { margin-top: 11px; }
+      .activity-list { gap: 7px; }
+      .transaction { height: 52px; gap: 6px; padding: 6px; }
+      .side-column { padding-top: 2px; }
+      .side-top { justify-content: flex-start; gap: 11px; margin-bottom: 15px; }
+      .quick-actions { gap: 8px; }
+    }
+    @media (max-width: 420px) {
+      .dashboard { grid-template-columns: minmax(360px, calc(100vw - 72px)) 180px; padding-right: 12px; padding-left: 12px; }
+      .account-summaries { gap: 5px; }
+      .summary { font-size: 6px; }
+      .summary strong { font-size: 8px; }
+      .cards { gap: 6px; }
+      .card-balance { font-size: 11px; }
+      .overview { gap: 7px; }
+      .security-panel, .spending-panel { padding-right: 9px; padding-left: 9px; }
+    }
+    @media (min-width: 701px) and (max-width: 1050px) {
+      .dashboard { grid-template-columns: minmax(0, 1fr) 220px; gap: 17px; padding-right: 20px; padding-left: 20px; }
+      .account-summaries { gap: 8px; }
+      .overview { gap: 9px; }
+      .security-panel, .spending-panel { padding-right: 11px; padding-left: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <section class="main-column" aria-label="Cards and account overview">
+      <header class="topline">
+        <h1>Cards &amp; Accounts <span aria-hidden="true">▰</span></h1>
+        <div class="account-summaries" aria-label="Account balances">
+          <div class="summary"><span>Checking Account</span><strong>$150,000.00</strong><small>Checking Account</small></div>
+          <div class="summary"><span>Active Card</span><strong>3 Virtual &amp; Metal</strong><small>Today</small></div>
+          <div class="summary"><span>Monthly Spend</span><strong>$5,250.20</strong><small>Last 30 days</small></div>
+        </div>
+      </header>
+
+      <section class="cards" aria-label="Your cards">
+        <article class="bank-card">
+          <span class="card-label">World Elite Mastercard</span>
+          <span class="card-brand">MASTERCARD</span>
+          <span class="card-dots">•••• •••• •••• 8824</span>
+          <strong class="card-balance">$84,250.00</strong>
+          <span class="card-foot"><span>Black Obsidian Metal</span><span>09/28</span></span>
+        </article>
+        <article class="bank-card platinum">
+          <span class="card-label">Platinum Visa Business</span>
+          <span class="card-brand">VISA</span>
+          <span class="card-dots">•••• •••• •••• 4190</span>
+          <strong class="card-balance">$42,800.50</strong>
+          <span class="card-foot"><span>Emerald Corporate</span><span>11/27</span></span>
+        </article>
+        <article class="bank-card digital">
+          <span class="card-label">Instant Digital Card</span>
+          <span class="card-brand">VISA</span>
+          <span class="card-dots">•••• •••• •••• 9032</span>
+          <strong class="card-balance">$6,450.00</strong>
+          <span class="card-foot"><span>Virtual Cyber Card</span><span>04/29</span></span>
+        </article>
+      </section>
+
+      <div class="overview">
+        <section class="panel security-panel" aria-labelledby="security-title">
+          <div class="panel-heading">
+            <div><h2 id="security-title">Card Security &amp; Limits</h2><span class="subtitle">Black Obsidian Metal **** 8824</span></div>
+            <span class="active-chip">▣ &nbsp;Active</span>
+          </div>
+          <div class="spend-limit">
+            <div class="limit-label"><span>Monthly Spending Limit</span><strong>$12,000</strong></div>
+            <div class="range" role="img" aria-label="Monthly spending limit, 24 percent used"></div>
+          </div>
+          <label class="setting-row"><span>Online Purchases<small>Secure transactions online</small></span><input class="switch" type="checkbox" checked aria-label="Online purchases enabled"></label>
+          <label class="setting-row"><span>International Payments<small>Payments outside your home country</small></span><input class="switch" type="checkbox" checked aria-label="International payments enabled"></label>
+        </section>
+
+        <section class="panel spending-panel" aria-labelledby="spending-title">
+          <div class="panel-heading">
+            <div><h2 id="spending-title">Spending by Category</h2><span class="subtitle">Current Billing Cycle</span></div>
+            <span class="period-chip">+12.4% vs last month</span>
+          </div>
+          <div class="category-list">
+            <div class="category"><div class="category-top"><span>Luxury Shopping</span><strong>$6,420</strong></div><div class="bar-track"><span class="bar" style="--bar-color:#e87931;width:82%"></span></div></div>
+            <div class="category"><div class="category-top"><span>Travel &amp; Flights</span><strong>$3,850</strong></div><div class="bar-track"><span class="bar" style="--bar-color:#dd6e33;width:59%"></span></div></div>
+            <div class="category"><div class="category-top"><span>Dining &amp; Clubs</span><strong>$2,640</strong></div><div class="bar-track"><span class="bar" style="--bar-color:#a66bdb;width:40%"></span></div></div>
+            <div class="category"><div class="category-top"><span>Tech &amp; Software</span><strong>$2,340</strong></div><div class="bar-track"><span class="bar" style="--bar-color:#45bd8e;width:34%"></span></div></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="activity" aria-labelledby="activity-title">
+        <div class="activity-heading"><h2 id="activity-title">Recent Card Activity</h2></div>
+        <div class="activity-list">
+          <article class="transaction"><span class="merchant-icon" aria-hidden="true">▣</span><span class="merchant-copy"><strong>Apple Store Regent St</strong><small>London · Electronics · Feb 24</small></span><strong class="merchant-amount">-$1,299.00</strong></article>
+          <article class="transaction"><span class="merchant-icon" aria-hidden="true">✈</span><span class="merchant-copy"><strong>Emirates First Class</strong><small>Dubai · Travel · Feb 23</small></span><strong class="merchant-amount">-$4,850.00</strong></article>
+          <article class="transaction"><span class="merchant-icon" aria-hidden="true">♜</span><span class="merchant-copy"><strong>Nobu Restaurant</strong><small>New York · Dining · Feb 22</small></span><strong class="merchant-amount">-$640.20</strong></article>
+        </div>
+      </section>
+    </section>
+
+    <aside class="side-column" aria-label="Account shortcuts">
+      <div class="side-top">
+        <button class="icon-button notification" type="button" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+        </button>
+        <span class="user-chip"><span class="avatar" aria-hidden="true">R</span><small>Rizayah</small></span>
+      </div>
+      <div class="quick-actions">
+        <div class="quick-action"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg><span>Transfer</span></div>
+        <div class="quick-action"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7 7 17M16 17H7V8"/></svg><span>Receive</span></div>
+      </div>
+      <section class="balance-card" aria-label="Total balance">
+        <span class="balance-label">Total Balance</span>
+        <strong class="balance-value">$567,898.98</strong>
+      </section>
+      <h2 class="side-heading">Last Transaction</h2>
+      <article class="last-transaction">
+        <span class="merchant-icon" aria-hidden="true">◉</span>
+        <span class="merchant-copy"><strong>Gogo Acker</strong><small>Feb 22 2026 · 14:31</small></span>
+      </article>
+      <div class="side-heading" style="margin-top:9px"><a href="#activity-title">See all transactions</a></div>
+    </aside>
+  </main>
+</body>
+</html>

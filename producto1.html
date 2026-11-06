@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjetas de publicaciones</title>
+    <link rel="stylesheet" type="text/css" href="estilos_de_1.css">
+
+</head>
+<body>
+    <main class="posts-grid" aria-label="Publicaciones">
+        <article class="card rgb" role="link" tabindex="0" aria-label="Abrir publicación: El primero" data-href="publicacion-1.html">
+            <div class="card-image"></div>
+            <div class="card-text">
+                <span class="date">4 días atrás</span>
+                <h2>El primero</h2>
+                <p>Texto, mucho texto, más texto, mucho más texto, muchísimo más texto; suficiente texto.</p>
+            </div>
+        </article>
+
+        <article class="card rgb" role="link" tabindex="0" aria-label="Abrir publicación: Post número 2" data-href="publicacion-2.html">
+            <div class="card-image card2"></div>
+            <div class="card-text card2">
+                <span class="date">1 semana atrás</span>
+                <h2>Post número 2</h2>
+                <p>Una nueva publicación con ideas, novedades y contenido para compartir.</p>
+            </div>
+        </article>
+
+        <article class="card rgb" role="link" tabindex="0" aria-label="Abrir publicación: Post número 3" data-href="publicacion-3.html">
+            <div class="card-image card3"></div>
+            <div class="card-text card3">
+                <span class="date">3 semanas atrás</span>
+                <h2>Post número 3</h2>
+                <p>Descubre más contenido y mantente al día con nuestras últimas publicaciones.</p>
+            </div>
+        </article>
+
+        <article class="card rgb" role="link" tabindex="0" aria-label="Abrir publicación: Post número 4" data-href="publicacion-4.html">
+            <div class="card-image card4"></div>
+            <div class="card-text card4">
+                <span class="date">1 mes atrás</span>
+                <h2>Post número 4</h2>
+                <p>Un espacio para compartir noticias, consejos y temas que te pueden interesar.</p>
+            </div>
+        </article>
+
+        <article class="card rgb" role="link" tabindex="0" aria-label="Abrir publicación: Post número 5" data-href="publicacion-5.html">
+            <div class="card-image card5"></div>
+            <div class="card-text card5">
+                <span class="date">2 meses atrás</span>
+                <h2>Post número 5</h2>
+                <p>Seguimos creando contenido útil y entretenido para nuestra comunidad.</p>
+            </div>
+        </article>
+
+        <article class="card rgb" role="link" tabindex="0" aria-label="Abrir publicación: Post número 6" data-href="publicacion-6.html">
+            <div class="card-image card6"></div>
+            <div class="card-text card6">
+                <span class="date">3 meses atrás</span>
+                <h2>Post número 6</h2>
+                <p>Gracias por acompañarnos. Aquí encontrarás otra de nuestras publicaciones.</p>
+            </div>
+        </article>
+    </main>
+
+    <p class="visually-hidden" id="navigation-status" role="status" aria-live="polite"></p>
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js" defer></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", function () {
+          const cards = document.querySelectorAll(".card.rgb");
+          const status = document.getElementById("navigation-status");
+          const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+          function openPost(card) {
+            if (card.classList.contains("is-launching")) {
+              return;
+            }
+            card.classList.add("is-selected", "is-launching");
+            status.textContent = "Abriendo " + card.getAttribute("aria-label").replace("Abrir publicación: ", "") + ".";
+            window.setTimeout(function () {
+              window.location.assign(card.dataset.href);
+            }, reduceMotion ? 0 : 750);
+          }
+
+          cards.forEach(function (card) {
+            card.addEventListener("click", function () {
+              openPost(card);
+            });
+            card.addEventListener("keydown", function (event) {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                openPost(card);
+              }
+            });
+          });
+
+          if (window.VanillaTilt) {
+            VanillaTilt.init(cards, {
+              glare: true,
+              reverse: true,
+              "max-glare": 0.15
+            });
+          }
+        });
+    </script>
+</body>
+</html>
